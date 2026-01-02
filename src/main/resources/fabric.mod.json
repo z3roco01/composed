@@ -3,15 +3,13 @@
 	"id": "composed",
 	"version": "${version}",
 	"name": "Composed",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A config file library",
 	"authors": [
-		"Me!"
+		"z3roco01"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "",
 	"icon": "assets/composed/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -19,9 +17,6 @@
 			"z3roco01.composed.Composed"
 		]
 	},
-	"mixins": [
-		"composed.mixins.json"
-	],
 	"depends": {
 		"fabricloader": ">=0.18.4",
 		"minecraft": "~1.21.11",

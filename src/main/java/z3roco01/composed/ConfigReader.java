@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles reading of config files
@@ -84,6 +85,50 @@ class ConfigReader extends FileReader {
                 return false;
 
             newValue = str.substring(1, str.length()-2);
+        }else if(ArrayList.class.isAssignableFrom(fieldClass)) {
+            newValue = new ArrayList<>();
+            ArrayList<Object> oldList = (ArrayList<Object>)field.get(configObject);
+
+            Class elementClass;
+            if(!oldList.isEmpty())
+                elementClass = oldList.get(0).getClass();
+            else  // must have at least one element by default
+                return false;
+
+            // clear out everything to start reading
+            ((ArrayList<Object>)newValue).clear();
+            // idx to start reading liens from
+            int idx = lines.indexOf(line)+1;
+            String curLine = lines.get(idx).stripLeading();
+
+            while(!curLine.startsWith("]")) {
+                if(elementClass == Boolean.class)
+                    ((ArrayList<Object>)newValue).add(Boolean.valueOf(curLine));
+                // whole numbers
+                else if(elementClass == Byte.class)
+                    ((ArrayList<Object>)newValue).add(Byte.valueOf(curLine));
+                else if(elementClass == Short.class)
+                    ((ArrayList<Object>)newValue).add(Short.valueOf(curLine));
+                else if(elementClass == Integer.class)
+                    ((ArrayList<Object>)newValue).add(Integer.valueOf(curLine));
+                else if(elementClass == Long.class)
+                    ((ArrayList<Object>)newValue).add(Long.valueOf(curLine));
+                    // decimal numbers
+                else if(elementClass == Float.class)
+                    ((ArrayList<Object>)newValue).add(Float.valueOf(curLine));
+                else if(elementClass == Double.class)
+                    ((ArrayList<Object>)newValue).add(Double.valueOf(curLine));
+                    // string
+                else if(elementClass == String.class) {
+                    if(!curLine.startsWith("\"") || !curLine.startsWith("\""))
+                        continue;
+
+                    ((ArrayList<Object>)newValue).add(curLine.subSequence(1, curLine.length()-1));
+                }
+
+                idx++;
+                curLine = lines.get(idx);
+            }
         }
 
         boolean accessible = field.isAccessible();

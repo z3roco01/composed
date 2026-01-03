@@ -3,6 +3,8 @@ package z3roco01.composed;
 import z3roco01.composed.annotation.Comment;
 import z3roco01.composed.annotation.ConfigProperty;
 
+import java.util.ArrayList;
+
 public class TestConfig {
     @Comment(comment = "this is a comment hello")
     @ConfigProperty
@@ -19,4 +21,7 @@ public class TestConfig {
 
     @ConfigProperty
     public String neww ="helll ???";
+
+    @ConfigProperty
+    public ArrayList<String> pee = new ArrayList<>();
 }

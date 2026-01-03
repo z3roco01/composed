@@ -7,7 +7,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Handles the writing of a config file
@@ -28,7 +32,14 @@ class ConfigWriter extends FileWriter {
     public void writeField(String key, Field field) throws IOException, IllegalAccessException {
         writeComment(field);
         writeKey(key);
+        writeValue(field);
+    }
 
+    /**
+     * Writes the actual value of a field
+     * @param field
+     */
+    private void writeValue(Field field) throws IllegalAccessException, IOException {
         Class fieldClass = field.getType();
         Object fieldObject = field.get(configObject);
 
@@ -37,7 +48,7 @@ class ConfigWriter extends FileWriter {
             this.writeBoolean(field.getBoolean(configObject));
         else if(fieldClass == Boolean.class)
             this.writeBoolean((Boolean)fieldObject);
-        // whole numbers
+            // whole numbers
         else if(fieldClass == byte.class)
             this.writeLong(field.getByte(fieldObject));
         else if(fieldClass == Byte.class)
@@ -54,7 +65,7 @@ class ConfigWriter extends FileWriter {
             this.writeLong(field.getLong(configObject));
         else if(fieldClass == Long.class)
             this.writeLong((Long)fieldObject);
-        // decimal numbers
+            // decimal numbers
         else if(fieldClass == float.class)
             this.writeDouble(field.getFloat(configObject));
         else if(fieldClass == Float.class)
@@ -63,9 +74,42 @@ class ConfigWriter extends FileWriter {
             this.writeDouble(field.getDouble(configObject));
         else if(fieldClass == Double.class)
             this.writeDouble((Double) fieldObject);
-        // string
+            // string
         else if(fieldClass == String.class)
             this.writeString((String)fieldObject);
+            // lists
+        else if(fieldClass == ArrayList.class) {
+            ArrayList<?> list = (ArrayList<?>)fieldObject;
+            this.write("[\n");
+
+            if(!list.isEmpty()) {
+                Class elementClass = list.get(0).getClass();
+
+                for(Object element : list) {
+                    if(elementClass == Boolean.class)
+                        this.writeBoolean((Boolean)element);
+                        // whole numbers
+                    else if(elementClass == Byte.class)
+                        this.writeLong((Byte)element);
+                    else if(elementClass == Short.class)
+                        this.writeLong((Short)element);
+                    else if(elementClass == Integer.class)
+                        this.writeLong((Integer)element);
+                    else if(elementClass == Long.class)
+                        this.writeLong((Long)element);
+                        // decimal numbers
+                    else if(elementClass == Float.class)
+                        this.writeDouble((Float)element);
+                    else if(elementClass == Double.class)
+                        this.writeDouble((Double) element);
+                        // string
+                    else if(elementClass == String.class)
+                        this.writeString((String)element);
+                }
+            }
+            this.write("]\n");
+
+        }
     }
 
     /**

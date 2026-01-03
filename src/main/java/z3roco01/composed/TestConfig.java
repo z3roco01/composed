@@ -16,4 +16,7 @@ public class TestConfig {
 
     @ConfigProperty
     public String yes = "what the flart";
+
+    @ConfigProperty
+    public String neww ="helll ???";
 }

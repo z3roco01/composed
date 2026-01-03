@@ -99,6 +99,10 @@ public class ConfigFile {
 
                 configUpdated |= reader.readField(key, field);
             }
+
+            // if the config class has fields that dont exist, add them up
+            if(configUpdated)
+                store(file, object);
         }else {
             // if it did, save defaults and thats it
             store(file, object);

@@ -22,7 +22,6 @@ class ConfigReader extends FileReader {
             if(line.startsWith("#"))
                 continue;
 
-            Composed.LOGGER.info(line);
             lines.add(line);
         }
     }

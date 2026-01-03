@@ -17,20 +17,5 @@ public class Composed implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-        TestConfig config = new TestConfig();
-        config.pee.add("one");
-        config.pee.add("six 7");
-
-        try {
-            ConfigFile.load("./config/test.conf", config);
-        } catch (IOException | IllegalAccessException e) {
-            LOGGER.error(e.toString());
-        }
-        LOGGER.info("#written");
-        LOGGER.info(config.neww);
-
-        for(String str : config.pee) {
-            LOGGER.info(str);
-        }
     }
 }

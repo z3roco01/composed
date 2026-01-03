@@ -1,14 +1,10 @@
 package z3roco01.composed;
 
-import z3roco01.composed.annotation.Comment;
 import z3roco01.composed.annotation.ConfigProperty;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Properties;
 
 /**
  * Holds methods which handle reading and writing of ConfigProperties
@@ -90,6 +86,10 @@ public class ConfigFile {
             // if the config class has fields that dont exist, add them up
             if(configUpdated)
                 store(file, object);
+
+            // do processing if needed
+            if(object instanceof ProcessedConfig)
+                ((ProcessedConfig) object).process();
         }else {
             // if it did, save defaults and thats it
             store(file, object);

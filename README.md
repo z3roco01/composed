@@ -10,7 +10,11 @@ repositories {
 ```
 Then add this line to your `dependancies`, replacing `VERSION` with the most recent version
 ```groovy
-modImplementation "com.github.z3roco01:composed:VERSION"
+modApi "com.github.z3roco01:composed:VERSION"
+```
+The player will need to install Composed seperately as well, if you do not wish for this you can use:
+```groovy
+include modApi "com.github.z3roco01:composed:VERSION"
 ```
 
 # Using

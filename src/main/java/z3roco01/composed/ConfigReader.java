@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Handles reading of config files
@@ -99,7 +98,7 @@ class ConfigReader extends FileReader {
             ((ArrayList<Object>)newValue).clear();
             // idx to start reading liens from
             int idx = lines.indexOf(line)+1;
-            String curLine = lines.get(idx).stripLeading();
+            String curLine = lines.get(idx).trim();
 
             while(!curLine.startsWith("]")) {
                 if(elementClass == Boolean.class)

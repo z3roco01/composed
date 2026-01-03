@@ -17,8 +17,14 @@ class ConfigReader extends FileReader {
         super(file);
         this.configObject = configObject;
         BufferedReader reader = new BufferedReader(this);
-        for(String line; (line = reader.readLine()) != null;)
+        for(String line; (line = reader.readLine()) != null;) {
+            // ignore comments
+            if(line.startsWith("#"))
+                continue;
+
+            Composed.LOGGER.info(line);
             lines.add(line);
+        }
     }
 
     /**

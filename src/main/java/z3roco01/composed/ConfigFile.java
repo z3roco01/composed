@@ -33,11 +33,6 @@ public class ConfigFile {
      */
     public static <T> void store(File file, T object) throws IOException, IllegalAccessException {
         createIfNotPresent(file);
-
-        // TODO: MAKE BETTER CONFIG SYSTEM THAT DOESNT RELY ON PROPERTIES
-        // underlying properties objects, mostly for easily text handling
-        //Properties properties = new Properties();
-
         ConfigWriter writer = new ConfigWriter(file, object);
 
         // first loop over all properties and filter for ones annotated as config
@@ -53,13 +48,9 @@ public class ConfigFile {
             writer.writeField(key, field);
             // return accessibility
             field.setAccessible(accessible);
-            //properties.setProperty(key, value);
         }
 
         writer.close();
-
-        // use the properties object to write
-        //properties.store(new FileWriter(file), null);
     }
 
     /**
@@ -82,10 +73,6 @@ public class ConfigFile {
     public static <T> void load(File file, T object) throws IOException, IllegalAccessException {
         // if the file did not need creation
         if(!createIfNotPresent(file)) {
-            //Properties properties = new Properties();
-            //properties.load(new FileReader(file));
-            // if the file is missing at least one property, this will be true meaning a save is needed
-            //boolean propertiesUpdated = false;
 
             // keeps track if any defaults need to be saved
             boolean configUpdated = true;

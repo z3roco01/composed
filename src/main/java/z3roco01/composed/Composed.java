@@ -5,6 +5,8 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 public class Composed implements ModInitializer {
 	public static final String MOD_ID = "composed";
 
@@ -15,10 +17,17 @@ public class Composed implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+        TestConfig config = new TestConfig();
+        try {
+            ConfigFile.load("./config/test.conf", config);
+        } catch (IOException | IllegalAccessException e) {
+            LOGGER.error(e.toString());
+        }
+        LOGGER.info("#written");
 
-		LOGGER.info("Hello Fabric world!");
-	}
+        LOGGER.info(config.yes);
+        LOGGER.info(String.valueOf(config.hello));
+        LOGGER.info(String.valueOf(config.oh));
+        LOGGER.info(String.valueOf(config.test));
+    }
 }

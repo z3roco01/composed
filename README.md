@@ -2,7 +2,16 @@
 A simple library mod for minecraft 1.21.11+
 
 # Adding to your project
-__TODO__
+First add this to your `build.gradle`
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+Then add this line to your `dependancies`, replacing `VERSION` with the most recent version
+```groovy
+modImplementation "com.github.z3roco01:composed:VERSION"
+```
 
 # Using
 Once you have the library added to your project you can begin to use it.<br>
@@ -26,17 +35,23 @@ public class ExampleConfig {
 To then load and save the config:
 ```java
 public class ModMain implements ModInitializer {
-    public static ExampleConfig config = new ExampleConfig();
+    public static final ExampleConfig config = new ExampleConfig();
     
+    @Override
     public void onInitialize() {
-        // load in the values
-        ConfigFile.load("./config/example.conf", config);
+        // need to catch exceptions that load and store can produce
+        try {
+            // load in the values
+            ConfigFile.load("./config/example.conf", config);
+            
+            // do stuff to them
+            config.test += 54;
         
-        // do stuff to them
-        config.test += 54;
-        
-        // store them again
-        ConfigFile.store("./config/example.conf", config);
+            // store them again
+            ConfigFile.store("./config/example.conf", config);
+        }catch(IOException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 ```

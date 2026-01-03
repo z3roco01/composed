@@ -10,11 +10,12 @@ repositories {
 ```
 Then add this line to your `dependancies`, replacing `VERSION` with the most recent version
 ```groovy
-modApi "com.github.z3roco01:composed:VERSION"
+modApi ("com.github.z3roco01:composed:VERSION")
 ```
+The most recent version being `1.0.1`<br>
 The player will need to install Composed seperately as well, if you do not wish for this you can use:
 ```groovy
-include modApi "com.github.z3roco01:composed:VERSION"
+include modApi("com.github.z3roco01:composed:VERSION")
 ```
 
 # Using

@@ -88,7 +88,7 @@ public class ConfigFile {
             //boolean propertiesUpdated = false;
 
             // keeps track if any defaults need to be saved
-            boolean configUpdated = false;
+            boolean configUpdated = true;
             ConfigReader reader = new ConfigReader(file, object);
             for(Field field : object.getClass().getDeclaredFields()) {
                 // if it is a record then every field will be serialised
@@ -97,7 +97,7 @@ public class ConfigFile {
 
                 String key = getKey(field);
 
-                configUpdated |= reader.readField(key, field);
+                configUpdated &= reader.readField(key, field);
             }
 
             // if the config class has fields that dont exist, add them up
@@ -157,10 +157,5 @@ public class ConfigFile {
      */
     private static boolean isConfigProperty(Field field) {
         return field.isAnnotationPresent(ConfigProperty.class);
-    }
-
-    private static String getComment(Field field) {
-        if(!field.isAnnotationPresent(Comment.class)) return "";
-        return field.getAnnotation(Comment.class).comment();
     }
 }

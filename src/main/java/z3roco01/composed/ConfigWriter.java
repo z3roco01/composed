@@ -1,6 +1,7 @@
 package z3roco01.composed;
 
 import org.jetbrains.annotations.NotNull;
+import z3roco01.composed.annotation.Comment;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,6 +26,7 @@ class ConfigWriter extends FileWriter {
      * @param field the field to write its value
      */
     public void writeField(String key, Field field) throws IOException, IllegalAccessException {
+        writeComment(field);
         writeKey(key);
 
         Class fieldClass = field.getType();
@@ -64,6 +66,18 @@ class ConfigWriter extends FileWriter {
         // string
         else if(fieldClass == String.class)
             this.writeString((String)fieldObject);
+    }
+
+    /**
+     * Writes a fields comment
+     * @param field the field to write its comment
+     */
+    private void writeComment(Field field) throws IOException {
+        String comment = getComment(field);
+        // dont bother writing nothing
+        if(comment.isBlank()) return;
+
+        this.write("# " + getComment(field) + "\n");
     }
 
     /**
@@ -107,5 +121,15 @@ class ConfigWriter extends FileWriter {
      */
     private void writeString(String str) throws IOException {
         this.write("\"" + str + "\"\n");
+    }
+
+    /**
+     * Gets the comment of the field if present
+     * @param field the field to check
+     * @return a comment if present, otherwise an empty string
+     */
+    private static String getComment(Field field) {
+        if(!field.isAnnotationPresent(Comment.class)) return "";
+        return field.getAnnotation(Comment.class).comment();
     }
 }

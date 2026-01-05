@@ -28,6 +28,17 @@ To store a config class you must call the `ConfigFile.store(path, object)` metho
 Loading is just as simple, you call `ConfigFile.load(path, object)` then it'll be loaded just like that.<br>
 Every property that is apart of the config must have a default value, and `ArrayList`s must have at least one element.<br>
 
+### Supported datatypes
+The currently supported data tpyes are: ( any fields of other types will be ignored )
+- `byte`/`Byte`
+- `short`/`Short`
+- `int`/`Integer`
+- `long`/`Long`
+- `float`/`Float`
+- `double`/`Double`
+- `boolean`/`Boolean`
+- `String`
+
 ## Processing data
 If you need to process data immediately after its loaded ( ex: turing a list of item ids into a list of items ) you can do that by implementing the `ProcessedConfig` interface in your config class.
 

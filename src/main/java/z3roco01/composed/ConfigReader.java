@@ -1,6 +1,7 @@
 package z3roco01.composed;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -41,103 +42,91 @@ class ConfigReader extends FileReader {
 
         String strValue = splitLine[1];
 
-        Class fieldClass = field.getType();
-        Object fieldObject = field.get(configObject);
-        Object newValue = new Object();
+        Object obj = fromString(field.get(configObject), field.getType(), strValue, line);
+        if(obj == null) return false;
 
-        // boolean
-        if(fieldClass == boolean.class)
-            newValue = Boolean.parseBoolean(strValue);
-        else if(fieldClass == Boolean.class)
-            newValue = Boolean.valueOf(strValue);
-        // whole numbers
-        else if(fieldClass == byte.class)
-            newValue = Byte.parseByte(strValue);
-        else if(fieldClass == Byte.class)
-            newValue = Byte.valueOf(strValue);
-        else if(fieldClass == short.class)
-            newValue = Short.parseShort(strValue);
-        else if(fieldClass == Short.class)
-            newValue = Short.valueOf(strValue);
-        else if(fieldClass == int.class)
-            newValue = Integer.parseInt(strValue);
-        else if(fieldClass == Integer.class)
-            newValue = Integer.valueOf(strValue);
-        else if(fieldClass == long.class)
-            newValue = Long.parseLong(strValue);
-        else if(fieldClass == Long.class)
-            newValue = Long.valueOf(strValue);
+        boolean accessible = field.isAccessible();
+        field.setAccessible(true);
+
+        field.set(configObject, obj);
+
+        field.setAccessible(accessible);
+
+        return true;
+    }
+
+    /**
+     * Creates the correct object from a string
+     * @param defaultValue the default value for this property
+     * @param clazz the class of this object
+     * @param str the string to convert
+     * @param line the line which is being converted
+     * @return the object that was created
+     */
+    private Object fromString(@Nullable Object defaultValue, Class<?> clazz, String str, String line) throws IllegalAccessException {
+        if(clazz == boolean.class)
+            return Boolean.parseBoolean(str);
+        else if(clazz == Boolean.class)
+            return Boolean.valueOf(str);
+        else if(clazz == byte.class)
+            return Byte.parseByte(str);
+        else if(clazz == Byte.class)
+            return Byte.valueOf(str);
+        else if(clazz == short.class)
+            return Short.parseShort(str);
+        else if(clazz == Short.class)
+            return Short.valueOf(str);
+        else if(clazz == int.class)
+            return Integer.parseInt(str);
+        else if(clazz == Integer.class)
+            return Integer.valueOf(str);
+        else if(clazz == long.class)
+            return Long.parseLong(str);
+        else if(clazz == Long.class)
+            return Long.valueOf(str);
             // decimal numbers
-        else if(fieldClass == float.class)
-            newValue = Float.parseFloat(strValue);
-        else if(fieldClass == Float.class)
-            newValue = Float.valueOf(strValue);
-        else if(fieldClass == double.class)
-            newValue = Double.parseDouble(strValue);
-        else if(fieldClass == Double.class)
-            newValue = Double.valueOf(strValue);
+        else if(clazz == float.class)
+            return Float.parseFloat(str);
+        else if(clazz == Float.class)
+            return Float.valueOf(str);
+        else if(clazz == double.class)
+            return Double.parseDouble(str);
+        else if(clazz == Double.class)
+            return Double.valueOf(str);
             // string
-        else if(fieldClass == String.class) {
-            String str = (String)fieldObject;
+        else if(clazz == String.class) {
+            int firstQuote = str.indexOf("\"");
+            int lastQuote = str.lastIndexOf("\"");
+            if(firstQuote == -1 || lastQuote == -1 || firstQuote == lastQuote)
+                return null;
 
-            if(!str.startsWith("\"") || !str.endsWith("\""))
-                return false;
-
-            newValue = str.substring(1, str.length()-2);
-        }else if(ArrayList.class.isAssignableFrom(fieldClass)) {
-            newValue = new ArrayList<>();
-            ArrayList<Object> oldList = (ArrayList<Object>)field.get(configObject);
+            return str.substring(firstQuote+1, lastQuote);
+        }else if(ArrayList.class.isAssignableFrom(clazz)) {
+            ArrayList<Object> list = new ArrayList<>();
 
             Class elementClass;
-            if(!oldList.isEmpty())
-                elementClass = oldList.get(0).getClass();
+            if(!((ArrayList<Object>)defaultValue).isEmpty())
+                elementClass = ((ArrayList<Object>)defaultValue).get(0).getClass();
             else  // must have at least one element by default
-                return false;
+                return null;
 
             // clear out everything to start reading
-            ((ArrayList<Object>)newValue).clear();
+            ((ArrayList<Object>)defaultValue).clear();
             // idx to start reading liens from
             int idx = lines.indexOf(line)+1;
             String curLine = lines.get(idx).trim();
 
             while(!curLine.startsWith("]")) {
-                if(elementClass == Boolean.class)
-                    ((ArrayList<Object>)newValue).add(Boolean.valueOf(curLine));
-                // whole numbers
-                else if(elementClass == Byte.class)
-                    ((ArrayList<Object>)newValue).add(Byte.valueOf(curLine));
-                else if(elementClass == Short.class)
-                    ((ArrayList<Object>)newValue).add(Short.valueOf(curLine));
-                else if(elementClass == Integer.class)
-                    ((ArrayList<Object>)newValue).add(Integer.valueOf(curLine));
-                else if(elementClass == Long.class)
-                    ((ArrayList<Object>)newValue).add(Long.valueOf(curLine));
-                    // decimal numbers
-                else if(elementClass == Float.class)
-                    ((ArrayList<Object>)newValue).add(Float.valueOf(curLine));
-                else if(elementClass == Double.class)
-                    ((ArrayList<Object>)newValue).add(Double.valueOf(curLine));
-                    // string
-                else if(elementClass == String.class) {
-                    if(!curLine.startsWith("\"") || !curLine.startsWith("\""))
-                        continue;
-
-                    ((ArrayList<Object>)newValue).add(curLine.subSequence(1, curLine.length()-1));
-                }
+                list.add(fromString(null, elementClass, curLine, curLine));
 
                 idx++;
                 curLine = lines.get(idx);
             }
+
+            return list;
         }
 
-        boolean accessible = field.isAccessible();
-        field.setAccessible(true);
-
-        field.set(configObject, newValue);
-
-        field.setAccessible(accessible);
-
-        return true;
+        return null;
     }
 
     /**

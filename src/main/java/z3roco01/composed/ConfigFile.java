@@ -84,7 +84,7 @@ public class ConfigFile {
             }
 
             // if the config class has fields that dont exist, add them up
-            if(configUpdated)
+            if(!configUpdated)
                 store(file, object);
 
             // do processing if needed

@@ -1,6 +1,7 @@
 package z3roco01.composed;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import z3roco01.composed.annotation.Comment;
 
 import java.io.File;
@@ -42,69 +43,64 @@ class ConfigWriter extends FileWriter {
     private void writeValue(Field field) throws IllegalAccessException, IOException {
         Class fieldClass = field.getType();
         Object fieldObject = field.get(configObject);
+        writeObject(fieldObject, field);
+    }
+
+    /**
+     * Writes one objects value to the file
+     * @param field the field that underlies the object
+     */
+    private void writeObject(Object obj, @Nullable Field field) throws IllegalAccessException, IOException {
+        Class<?> objClass;
+        if(field == null)
+            objClass = obj.getClass();
+        else
+            objClass = field.getType();
 
         // boolean
-        if(fieldClass == boolean.class)
+        if(objClass == boolean.class)
             this.writeBoolean(field.getBoolean(configObject));
-        else if(fieldClass == Boolean.class)
-            this.writeBoolean((Boolean)fieldObject);
+        else if(objClass == Boolean.class)
+            this.writeBoolean((Boolean)obj);
             // whole numbers
-        else if(fieldClass == byte.class)
-            this.writeLong(field.getByte(fieldObject));
-        else if(fieldClass == Byte.class)
-            this.writeLong((Byte)fieldObject);
-        else if(fieldClass == short.class)
-            this.writeLong(field.getShort(fieldObject));
-        else if(fieldClass == Short.class)
-            this.writeLong((Short)fieldObject);
-        else if(fieldClass == int.class)
+        else if(objClass == byte.class)
+            this.writeLong(field.getByte(obj));
+        else if(objClass == Byte.class)
+            this.writeLong((Byte)obj);
+        else if(objClass == short.class)
+            this.writeLong(field.getShort(obj));
+        else if(objClass == Short.class)
+            this.writeLong((Short)obj);
+        else if(objClass == int.class)
             this.writeLong(field.getInt(configObject));
-        else if(fieldClass == Integer.class)
-            this.writeLong((Integer)fieldObject);
-        else if(fieldClass == long.class)
+        else if(objClass == Integer.class)
+            this.writeLong((Integer)obj);
+        else if(objClass == long.class)
             this.writeLong(field.getLong(configObject));
-        else if(fieldClass == Long.class)
-            this.writeLong((Long)fieldObject);
+        else if(objClass == Long.class)
+            this.writeLong((Long)obj);
             // decimal numbers
-        else if(fieldClass == float.class)
+        else if(objClass == float.class)
             this.writeDouble(field.getFloat(configObject));
-        else if(fieldClass == Float.class)
-            this.writeDouble((Float)fieldObject);
-        else if(fieldClass == double.class)
+        else if(objClass == Float.class)
+            this.writeDouble((Float)obj);
+        else if(objClass == double.class)
             this.writeDouble(field.getDouble(configObject));
-        else if(fieldClass == Double.class)
-            this.writeDouble((Double) fieldObject);
+        else if(objClass == Double.class)
+            this.writeDouble((Double) obj);
             // string
-        else if(fieldClass == String.class)
-            this.writeString((String)fieldObject);
+        else if(objClass == String.class)
+            this.writeString((String)obj);
             // lists
-        else if(fieldClass == ArrayList.class) {
-            ArrayList<?> list = (ArrayList<?>)fieldObject;
+        else if(ArrayList.class.isAssignableFrom(objClass)) {
+            ArrayList<?> list = (ArrayList<?>)obj;
             this.write("[\n");
 
             if(!list.isEmpty()) {
                 Class elementClass = list.get(0).getClass();
 
                 for(Object element : list) {
-                    if(elementClass == Boolean.class)
-                        this.writeBoolean((Boolean)element);
-                        // whole numbers
-                    else if(elementClass == Byte.class)
-                        this.writeLong((Byte)element);
-                    else if(elementClass == Short.class)
-                        this.writeLong((Short)element);
-                    else if(elementClass == Integer.class)
-                        this.writeLong((Integer)element);
-                    else if(elementClass == Long.class)
-                        this.writeLong((Long)element);
-                        // decimal numbers
-                    else if(elementClass == Float.class)
-                        this.writeDouble((Float)element);
-                    else if(elementClass == Double.class)
-                        this.writeDouble((Double) element);
-                        // string
-                    else if(elementClass == String.class)
-                        this.writeString((String)element);
+                    writeObject(element, null);
                 }
             }
             this.write("]\n");

@@ -1,5 +1,8 @@
 package z3roco01.composed;
 
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,13 +97,15 @@ class ConfigReader extends FileReader {
         else if(clazz == Double.class)
             return Double.valueOf(str);
             // string
-        else if(clazz == String.class) {
-            int firstQuote = str.indexOf("\"");
-            int lastQuote = str.lastIndexOf("\"");
-            if(firstQuote == -1 || lastQuote == -1 || firstQuote == lastQuote)
-                return null;
+        else if(clazz == String.class)
+            return removeQuotes(str);
+        else if(clazz == Item.class){
+            String strId = removeQuotes(str);
+            // turn string into proper minecraft id
+            Identifier id = Identifier.of(strId);
 
-            return str.substring(firstQuote+1, lastQuote);
+            // perform lookup of id now
+            return Registries.ITEM.get(id);
         }else if(ArrayList.class.isAssignableFrom(clazz)) {
             ArrayList<Object> list = new ArrayList<>();
 
@@ -127,6 +132,19 @@ class ConfigReader extends FileReader {
         }
 
         return null;
+    }
+
+    /**
+     * Removes the first and last double quote from a string
+     */
+    private String removeQuotes(String str) {
+        int firstQuote = str.indexOf("\"");
+
+        int lastQuote = str.lastIndexOf("\"");
+        if(firstQuote == -1 || lastQuote == -1 || firstQuote == lastQuote)
+            return null;
+
+        return str.substring(firstQuote+1, lastQuote);
     }
 
     /**

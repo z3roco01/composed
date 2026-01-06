@@ -38,6 +38,7 @@ The currently supported data types are: ( any fields of other types will be igno
 - `double`/`Double`
 - `boolean`/`Boolean`
 - `String`
+- `Item`
 
 ## Processing data
 If you need to process data immediately after its loaded ( ex: turing a list of item ids into a list of items ) you can do that by implementing the `ProcessedConfig` interface in your config class.

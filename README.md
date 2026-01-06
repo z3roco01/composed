@@ -47,9 +47,9 @@ If you need to process data immediately after its loaded ( ex: turing a list of 
 A simple config that will store one int with a comment above it
 ```java
 public class ExampleConfig {
-    @Comment(comment = "this is a test int")
+    @Comment(comment = "should we kill them all")
     @ConfigProperty
-    public int test = 10;
+    public int killEveryone = true;
 }
 ```
 To then load and save the config:
@@ -61,22 +61,21 @@ public class ModMain implements ModInitializer {
     public void onInitialize() {
         // need to catch exceptions that load and store can produce
         try {
-            // load in the values
+            // load in the values or store defaults
             ConfigFile.load("./config/example.conf", config);
-            
-            // do stuff to them
-            config.test += 54;
-        
-            // store them again
-            ConfigFile.store("./config/example.conf", config);
         }catch(IOException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+        
+        // do stuff with the config values
+        if(config.killPlayers) {
+            killEveryone();
         }
     }
 }
 ```
 The config file `.minecraft/config/example.conf` will look like:
 ```
-# this is a test int
-test=64
+# should we kill them all
+killEveryon=true
 ```

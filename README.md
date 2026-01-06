@@ -12,7 +12,7 @@ Then add this line to your `dependancies`, replacing `VERSION` with the most rec
 ```groovy
 modApi ("com.github.z3roco01:composed:VERSION")
 ```
-The most recent version being `1.2.0`, if you want the bleeding edge, use `master-SNAPSHOT` for the version be wary of bugs though<br>
+The most recent version being `1.3.0`, if you want the bleeding edge, use `master-SNAPSHOT` for the version be wary of bugs though<br>
 The player will need to install Composed separately as well, if you do not wish for this you can use:
 ```groovy
 include modApi("com.github.z3roco01:composed:VERSION")

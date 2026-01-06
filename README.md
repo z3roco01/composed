@@ -12,24 +12,24 @@ Then add this line to your `dependancies`, replacing `VERSION` with the most rec
 ```groovy
 modApi ("com.github.z3roco01:composed:VERSION")
 ```
-The most recent version being `1.2.0`<br>
-The player will need to install Composed seperately as well, if you do not wish for this you can use:
+The most recent version being `1.2.0`, if you want the bleeding edge, use `master-SNAPSHOT` for the version be wary of bugs though<br>
+The player will need to install Composed separately as well, if you do not wish for this you can use:
 ```groovy
 include modApi("com.github.z3roco01:composed:VERSION")
 ```
 
 # Using
 Once you have the library added to your project you can begin to use it.<br>
-If you want to mark a field as being apart of the config, you must add the `@ConfigProperty` annotation to it. This signifies it will be stored/loaded anytime this class is used as a config file.<br>
+If you want to mark a field as being a part of the config, you must add the `@ConfigProperty` annotation to it. This signifies it will be stored/loaded anytime this class is used as a config file.<br>
 You can also add comments before a property by using the `@Comment(comment = "commnet text")` annotation before the variable definition.
 
 ## Storing/loading
 To store a config class you must call the `ConfigFile.store(path, object)` method with the path ( relative to the `.minecraft` directory ) and an instance of the object which has the properties.
 Loading is just as simple, you call `ConfigFile.load(path, object)` then it'll be loaded just like that.<br>
-Every property that is apart of the config must have a default value, and `ArrayList`s must have at least one element.<br>
+Every property that is a part of the config must have a default value, and `ArrayList`s must have at least one element.<br>
 
 ### Supported datatypes
-The currently supported data tpyes are: ( any fields of other types will be ignored )
+The currently supported data types are: ( any fields of other types will be ignored )
 - `byte`/`Byte`
 - `short`/`Short`
 - `int`/`Integer`

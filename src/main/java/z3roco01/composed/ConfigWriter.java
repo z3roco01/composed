@@ -1,7 +1,10 @@
 package z3roco01.composed;
 
+import net.minecraft.block.Block;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import z3roco01.composed.annotation.Comment;
@@ -36,7 +39,6 @@ class ConfigWriter extends FileWriter {
 
     /**
      * Writes the actual value of a field
-     * @param field
      */
     private void writeValue(Field field) throws IllegalAccessException, IOException {
         Class fieldClass = field.getType();
@@ -89,9 +91,13 @@ class ConfigWriter extends FileWriter {
             // string
         else if(objClass == String.class)
             this.writeString((String)obj);
-            // lists
         else if(objClass == Item.class)
-            this.writeString(Registries.ITEM.getId((Item)obj).toString());
+            this.writeId(Registries.ITEM, (Item)obj);
+        else if(objClass == Block.class)
+            this.writeId(Registries.BLOCK, (Block)obj);
+        else if(objClass == StatusEffect.class)
+            this.writeId(Registries.STATUS_EFFECT, (StatusEffect)obj);
+        // lists
         else if(ArrayList.class.isAssignableFrom(objClass)) {
             ArrayList<?> list = (ArrayList<?>)obj;
             this.write("[\n");
@@ -106,6 +112,15 @@ class ConfigWriter extends FileWriter {
             this.write("]\n");
 
         }
+    }
+
+    /**
+     * Performs lookup in the registry and gets the id of value, then writes it
+     */
+    private <T> void writeId(Registry<T> registry, T value) throws IOException {
+        String id = registry.getId(value).toString();
+
+        this.writeString(id);
     }
 
     /**

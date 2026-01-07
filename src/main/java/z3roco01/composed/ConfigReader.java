@@ -1,7 +1,10 @@
 package z3roco01.composed;
 
+import net.minecraft.block.Block;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +51,7 @@ class ConfigReader extends FileReader {
         Object obj = fromString(field.get(configObject), field.getType(), strValue, line);
         if(obj == null) return false;
 
-        boolean accessible = field.isAccessible();
+        boolean accessible = field.canAccess(configObject);
         field.setAccessible(true);
 
         field.set(configObject, obj);
@@ -99,14 +102,13 @@ class ConfigReader extends FileReader {
             // string
         else if(clazz == String.class)
             return removeQuotes(str);
-        else if(clazz == Item.class){
-            String strId = removeQuotes(str);
-            // turn string into proper minecraft id
-            Identifier id = Identifier.of(strId);
-
-            // perform lookup of id now
-            return Registries.ITEM.get(id);
-        }else if(ArrayList.class.isAssignableFrom(clazz)) {
+        else if(clazz == Item.class)
+            return getFromRegistry(Registries.ITEM, removeQuotes(str));
+        else if(clazz == Block.class)
+            return getFromRegistry(Registries.BLOCK, removeQuotes(str));
+        else if(clazz == StatusEffect.class)
+            return getFromRegistry(Registries.STATUS_EFFECT, removeQuotes(str));
+        else if(ArrayList.class.isAssignableFrom(clazz)) {
             ArrayList<Object> list = new ArrayList<>();
 
             Class elementClass;
@@ -132,6 +134,15 @@ class ConfigReader extends FileReader {
         }
 
         return null;
+    }
+
+    /**
+     * Will lookup the string identifier in the passed registry
+     */
+    private <T> T getFromRegistry(Registry<T> registry, String strId) {
+        Identifier id = Identifier.of(strId);
+
+        return registry.get(id);
     }
 
     /**

@@ -12,7 +12,7 @@ Then add this line to your `dependancies`, replacing `VERSION` with the most rec
 ```groovy
 modApi ("com.github.z3roco01:composed:VERSION")
 ```
-The most recent version being `1.3.0`, if you want the bleeding edge, use `master-SNAPSHOT` for the version be wary of bugs though<br>
+The most recent version being `1.4.0`, if you want the bleeding edge, use `master-SNAPSHOT` for the version be wary of bugs though<br>
 The player will need to install Composed separately as well, if you do not wish for this you can use:
 ```groovy
 include modApi("com.github.z3roco01:composed:VERSION")
@@ -39,6 +39,8 @@ The currently supported data types are: ( any fields of other types will be igno
 - `boolean`/`Boolean`
 - `String`
 - `Item`
+- `Block`
+- `StatusEffect`
 
 ## Processing data
 If you need to process data immediately after its loaded ( ex: turing a list of item ids into a list of items ) you can do that by implementing the `ProcessedConfig` interface in your config class.

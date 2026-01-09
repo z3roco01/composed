@@ -1,5 +1,5 @@
 # Composed
-A simple library mod for minecraft 1.21.11+
+A simple configuration file library mod for minecraft 1.21.11+
 
 # Adding to your project
 First add this to your `build.gradle`
@@ -51,7 +51,7 @@ A simple config that will store one int with a comment above it
 public class ExampleConfig {
     @Comment(comment = "should we kill them all")
     @ConfigProperty
-    public int killEveryone = true;
+    public boolean killEveryone = true;
 }
 ```
 To then load and save the config:

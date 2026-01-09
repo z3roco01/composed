@@ -64,30 +64,30 @@ class ConfigWriter extends FileWriter {
             this.writeBoolean((Boolean)obj);
             // whole numbers
         else if(objClass == byte.class)
-            this.writeLong(field.getByte(obj));
+            this.writeNumber(field.getByte(obj));
         else if(objClass == Byte.class)
-            this.writeLong((Byte)obj);
+            this.writeNumber((Byte)obj);
         else if(objClass == short.class)
-            this.writeLong(field.getShort(obj));
+            this.writeNumber(field.getShort(obj));
         else if(objClass == Short.class)
-            this.writeLong((Short)obj);
+            this.writeNumber((Short)obj);
         else if(objClass == int.class)
-            this.writeLong(field.getInt(configObject));
+            this.writeNumber(field.getInt(configObject));
         else if(objClass == Integer.class)
-            this.writeLong((Integer)obj);
+            this.writeNumber((Integer)obj);
         else if(objClass == long.class)
-            this.writeLong(field.getLong(configObject));
+            this.writeNumber(field.getLong(configObject));
         else if(objClass == Long.class)
-            this.writeLong((Long)obj);
+            this.writeNumber((Long)obj);
             // decimal numbers
         else if(objClass == float.class)
-            this.writeDouble(field.getFloat(configObject));
+            this.writeDecimal(field.getFloat(configObject));
         else if(objClass == Float.class)
-            this.writeDouble((Float)obj);
+            this.writeDecimal((Float)obj);
         else if(objClass == double.class)
-            this.writeDouble(field.getDouble(configObject));
+            this.writeDecimal(field.getDouble(configObject));
         else if(objClass == Double.class)
-            this.writeDouble((Double) obj);
+            this.writeDecimal((Double) obj);
             // string
         else if(objClass == String.class)
             this.writeString((String)obj);
@@ -155,7 +155,7 @@ class ConfigWriter extends FileWriter {
      * Writes an integer, assuming field name is before
      * @param value integer to write
      */
-    private void writeLong(long value) throws IOException {
+    private void writeNumber(long value) throws IOException {
         this.write(value + "\n");
     }
 
@@ -163,7 +163,7 @@ class ConfigWriter extends FileWriter {
      * Writes a float, assuming field name is before
      * @param value float to write
      */
-    private void writeDouble(double value) throws IOException {
+    private void writeDecimal(double value) throws IOException {
         this.write(value + "\n");
     }
 

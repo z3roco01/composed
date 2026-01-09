@@ -41,13 +41,13 @@ class ConfigWriter extends FileWriter {
      * Writes the actual value of a field
      */
     private void writeValue(Field field) throws IllegalAccessException, IOException {
-        Class fieldClass = field.getType();
         Object fieldObject = field.get(configObject);
         writeObject(fieldObject, field);
     }
 
     /**
      * Writes one objects value to the file
+     * @param obj the object being written ( not the config object )
      * @param field the field that underlies the object
      */
     private void writeObject(Object obj, @Nullable Field field) throws IllegalAccessException, IOException {
@@ -103,11 +103,8 @@ class ConfigWriter extends FileWriter {
             this.write("[\n");
 
             if(!list.isEmpty()) {
-                Class elementClass = list.get(0).getClass();
-
-                for(Object element : list) {
+                for(Object element : list)
                     writeObject(element, null);
-                }
             }
             this.write("]\n");
 

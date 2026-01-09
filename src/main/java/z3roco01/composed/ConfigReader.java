@@ -39,7 +39,7 @@ class ConfigReader extends FileReader {
      * @param field the field to set
      * @return could the field be read
      */
-    public boolean readField(String key, Field field) throws IOException, IllegalAccessException {
+    public boolean readField(String key, Field field) throws IllegalAccessException {
         String line = findKey(key);
         if(line == null) return false;
 
@@ -69,7 +69,7 @@ class ConfigReader extends FileReader {
      * @param line the line which is being converted
      * @return the object that was created
      */
-    private Object fromString(@Nullable Object defaultValue, Class<?> clazz, String str, String line) throws IllegalAccessException {
+    private Object fromString(@Nullable Object defaultValue, Class<?> clazz, String str, String line) {
         if(clazz == boolean.class)
             return Boolean.parseBoolean(str);
         else if(clazz == Boolean.class)
@@ -111,14 +111,15 @@ class ConfigReader extends FileReader {
         else if(ArrayList.class.isAssignableFrom(clazz)) {
             ArrayList<Object> list = new ArrayList<>();
 
-            Class elementClass;
-            if(!((ArrayList<Object>)defaultValue).isEmpty())
-                elementClass = ((ArrayList<Object>)defaultValue).get(0).getClass();
+            Class<?> elementClass;
+            ArrayList<Object> arrList = (ArrayList<Object>)defaultValue;
+            if(!arrList.isEmpty())
+                elementClass = arrList.getFirst().getClass();
             else  // must have at least one element by default
                 return null;
 
             // clear out everything to start reading
-            ((ArrayList<Object>)defaultValue).clear();
+            arrList.clear();
             // idx to start reading liens from
             int idx = lines.indexOf(line)+1;
             String curLine = lines.get(idx).trim();
@@ -163,7 +164,7 @@ class ConfigReader extends FileReader {
      * @param key the key to search for
      * @return the whole line containing the key, including the key
      */
-    private String findKey(String key) throws IOException {
+    private String findKey(String key) {
         for(String line : lines) {
             if(line.startsWith(key))
                 return line;

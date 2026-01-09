@@ -14,12 +14,60 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Handles the writing of a config file
  */
 class ConfigWriter extends FileWriter {
     private final Object configObject;
+    /**
+     * Maps classes to a writer to simplify it
+     */
+    private static final HashMap<Class<?>, ClassWriter> classWriterMap = new HashMap<>();
+
+    @FunctionalInterface
+    private interface ClassWriter {
+        void write(Object obj, Field field, ConfigWriter writer) throws IOException;
+    }
+
+    static {
+        classWriterMap.put(boolean.class, (obj, field, writer)-> writer.writeBoolean((boolean)obj));
+        classWriterMap.put(Boolean.class, (obj, field, writer)-> writer.writeBoolean((Boolean)obj));
+
+        classWriterMap.put(byte.class, (obj, field, writer)-> writer.writeNumber((byte)obj));
+        classWriterMap.put(Byte.class, (obj, field, writer)-> writer.writeNumber((Byte)obj));
+        classWriterMap.put(short.class, (obj, field, writer)-> writer.writeNumber((short)obj));
+        classWriterMap.put(Short.class, (obj, field, writer)-> writer.writeNumber((Short)obj));
+        classWriterMap.put(int.class, (obj, field, writer)-> writer.writeNumber((int)obj));
+        classWriterMap.put(Integer.class, (obj, field, writer)-> writer.writeNumber((Integer)obj));
+        classWriterMap.put(long.class, (obj, field, writer)-> writer.writeNumber((long)obj));
+        classWriterMap.put(Long.class, (obj, field, writer)-> writer.writeNumber((Long)obj));
+
+        classWriterMap.put(float.class, (obj, field, writer)-> writer.writeDecimal((float)obj));
+        classWriterMap.put(Float.class, (obj, field, writer)-> writer.writeDecimal((Float)obj));
+        classWriterMap.put(double.class, (obj, field, writer)-> writer.writeDecimal((double)obj));
+        classWriterMap.put(Double.class, (obj, field, writer)-> writer.writeDecimal((Double)obj));
+
+        classWriterMap.put(String.class, (obj, field, writer)-> writer.writeString((String)obj));
+
+        classWriterMap.put(Item.class, (obj, field, writer) -> writer.writeId(Registries.ITEM, (Item)obj));
+        classWriterMap.put(Block.class, (obj, field, writer) -> writer.writeId(Registries.BLOCK, (Block)obj));
+        classWriterMap.put(StatusEffect.class, (obj, field, writer) -> writer.writeId(Registries.STATUS_EFFECT, (StatusEffect)obj));
+
+        classWriterMap.put(ArrayList.class, (obj, field, writer) -> {
+            ArrayList<?> list = (ArrayList<?>)obj;
+            writer.write("[\n");
+
+            ClassWriter classWriter = classWriterMap.get(list.getFirst().getClass());
+
+            if(!list.isEmpty()) {
+                for(Object element : list)
+                    classWriter.write(element, null, writer);
+            }
+            writer.write("]\n");
+        });
+    }
 
     public ConfigWriter(@NotNull File file, Object configObject) throws IOException {
         super(file);
@@ -50,15 +98,16 @@ class ConfigWriter extends FileWriter {
      * @param obj the object being written ( not the config object )
      * @param field the field that underlies the object
      */
-    private void writeObject(Object obj, @Nullable Field field) throws IllegalAccessException, IOException {
+    public void writeObject(Object obj, @Nullable Field field) throws IllegalAccessException, IOException {
         Class<?> objClass;
         if(field == null)
             objClass = obj.getClass();
         else
             objClass = field.getType();
 
+        classWriterMap.get(objClass).write(obj, field, this);
         // boolean
-        if(objClass == boolean.class)
+        /*if(objClass == boolean.class)
             this.writeBoolean(field.getBoolean(configObject));
         else if(objClass == Boolean.class)
             this.writeBoolean((Boolean)obj);
@@ -108,13 +157,13 @@ class ConfigWriter extends FileWriter {
             }
             this.write("]\n");
 
-        }
+        }*/
     }
 
     /**
      * Performs lookup in the registry and gets the id of value, then writes it
      */
-    private <T> void writeId(Registry<T> registry, T value) throws IOException {
+    public <T> void writeId(Registry<T> registry, T value) throws IOException {
         String id = registry.getId(value).toString();
 
         this.writeString(id);
@@ -144,7 +193,7 @@ class ConfigWriter extends FileWriter {
      * Writes a boolean, assumes the field name is before
      * @param bool boolean to write
      */
-    private void writeBoolean(boolean bool) throws IOException{
+    public void writeBoolean(boolean bool) throws IOException{
         if(bool)
             this.write("true\n");
         else
@@ -155,7 +204,7 @@ class ConfigWriter extends FileWriter {
      * Writes an integer, assuming field name is before
      * @param value integer to write
      */
-    private void writeNumber(long value) throws IOException {
+    public void writeNumber(long value) throws IOException {
         this.write(value + "\n");
     }
 
@@ -163,7 +212,7 @@ class ConfigWriter extends FileWriter {
      * Writes a float, assuming field name is before
      * @param value float to write
      */
-    private void writeDecimal(double value) throws IOException {
+    public void writeDecimal(double value) throws IOException {
         this.write(value + "\n");
     }
 
@@ -171,7 +220,7 @@ class ConfigWriter extends FileWriter {
      * Writes a string, assuming field name is before
      * @param str string to write
      */
-    private void writeString(String str) throws IOException {
+    public void writeString(String str) throws IOException {
         this.write("\"" + str + "\"\n");
     }
 

@@ -1,5 +1,6 @@
-package z3roco01.composed;
+package z3roco01.composed.file;
 
+import z3roco01.composed.ProcessedConfig;
 import z3roco01.composed.annotation.ConfigProperty;
 
 import java.io.File;

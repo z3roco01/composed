@@ -1,4 +1,4 @@
-package z3roco01.composed;
+package z3roco01.composed.file;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.effect.StatusEffect;
@@ -25,11 +25,6 @@ class ConfigWriter extends FileWriter {
      * Maps classes to a writer to simplify it
      */
     private static final HashMap<Class<?>, ClassWriter> classWriterMap = new HashMap<>();
-
-    @FunctionalInterface
-    private interface ClassWriter {
-        void write(Object obj, Field field, ConfigWriter writer) throws IOException;
-    }
 
     static {
         classWriterMap.put(boolean.class, (obj, field, writer)-> writer.writeBoolean((boolean)obj));
@@ -105,7 +100,8 @@ class ConfigWriter extends FileWriter {
         else
             objClass = field.getType();
 
-        classWriterMap.get(objClass).write(obj, field, this);
+        if(classWriterMap.containsKey(objClass))
+            classWriterMap.get(objClass).write(obj, field, this);
         // boolean
         /*if(objClass == boolean.class)
             this.writeBoolean(field.getBoolean(configObject));

@@ -1,4 +1,4 @@
-package z3roco01.composed;
+package z3roco01.composed.file;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.effect.StatusEffect;
@@ -12,13 +12,68 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Handles reading of config files
  */
 class ConfigReader extends FileReader {
     private final Object configObject;
-    private final ArrayList<String> lines = new ArrayList<>();
+    public final ArrayList<String> lines = new ArrayList<>();
+
+    private static final HashMap<Class<?>, ClassReader> classReaderMap = new HashMap<>();
+
+    static {
+        classReaderMap.put(boolean.class, (str, defaultValue, reader, line) -> Boolean.parseBoolean(str));
+        classReaderMap.put(Boolean.class, (str, defaultValue, reader, line) -> Boolean.valueOf(str));
+
+        classReaderMap.put(byte.class, (str, defaultValue, reader, line) -> Byte.parseByte(str));
+        classReaderMap.put(Byte.class, (str, defaultValue, reader, line) -> Byte.valueOf(str));
+        classReaderMap.put(short.class, (str, defaultValue, reader, line) -> Short.parseShort(str));
+        classReaderMap.put(Short.class, (str, defaultValue, reader, line) -> Short.valueOf(str));
+        classReaderMap.put(int.class, (str, defaultValue, reader, line) -> Integer.parseInt(str));
+        classReaderMap.put(Integer.class, (str, defaultValue, reader, line) -> Integer.valueOf(str));
+        classReaderMap.put(long.class, (str, defaultValue, reader, line) -> Long.parseLong(str));
+        classReaderMap.put(Long.class, (str, defaultValue, reader, line) -> Long.valueOf(str));
+
+        classReaderMap.put(float.class, (str, defaultValue, reader, line) -> Float.parseFloat(str));
+        classReaderMap.put(Float.class, (str, defaultValue, reader, line) -> Float.valueOf(str));
+        classReaderMap.put(double.class, (str, defaultValue, reader, line) -> Double.parseDouble(str));
+        classReaderMap.put(Double.class, (str, defaultValue, reader, line) -> Double.valueOf(str));
+
+        classReaderMap.put(String.class, (str, defaultValue, reader, line) -> ConfigReader.removeQuotes(str));
+
+        classReaderMap.put(Item.class, (str, defaultValue, reader, line) -> ConfigReader.getFromRegistry(Registries.ITEM, removeQuotes(str)));
+        classReaderMap.put(Block.class, (str, defaultValue, reader, line) -> ConfigReader.getFromRegistry(Registries.BLOCK, removeQuotes(str)));
+        classReaderMap.put(StatusEffect.class, (str, defaultValue, reader, line) -> ConfigReader.getFromRegistry(Registries.STATUS_EFFECT, removeQuotes(str)));
+
+        classReaderMap.put(ArrayList.class, (str, defaultValue, reader, line) -> {
+
+            ArrayList<Object> list = new ArrayList<>();
+
+            Class<?> elementClass;
+            ArrayList<Object> arrList = (ArrayList<Object>)defaultValue;
+            if(!arrList.isEmpty())
+                elementClass = arrList.getFirst().getClass();
+            else  // must have at least one element by default
+                return null;
+
+            // clear out everything to start reading
+            arrList.clear();
+            // idx to start reading liens from
+            int idx = reader.lines.indexOf(line)+1;
+            String curLine = reader.lines.get(idx).trim();
+
+            while(!curLine.startsWith("]")) {
+                list.add(reader.fromString(null, elementClass, curLine, curLine));
+
+                idx++;
+                curLine = reader.lines.get(idx);
+            }
+
+            return list;
+        });
+    }
 
     public ConfigReader(@NotNull File file, Object configObject) throws IOException {
         super(file);
@@ -70,7 +125,7 @@ class ConfigReader extends FileReader {
      * @return the object that was created
      */
     private Object fromString(@Nullable Object defaultValue, Class<?> clazz, String str, String line) {
-        if(clazz == boolean.class)
+        /*if(clazz == boolean.class)
             return Boolean.parseBoolean(str);
         else if(clazz == Boolean.class)
             return Boolean.valueOf(str);
@@ -134,13 +189,19 @@ class ConfigReader extends FileReader {
             return list;
         }
 
-        return null;
+
+        return null;*/
+
+        if(classReaderMap.containsKey(clazz))
+            return classReaderMap.get(clazz).read(str, defaultValue, this, line);
+        else
+            return null;
     }
 
     /**
      * Will lookup the string identifier in the passed registry
      */
-    private <T> T getFromRegistry(Registry<T> registry, String strId) {
+    public static <T> T getFromRegistry(Registry<T> registry, String strId) {
         Identifier id = Identifier.of(strId);
 
         return registry.get(id);
@@ -149,7 +210,7 @@ class ConfigReader extends FileReader {
     /**
      * Removes the first and last double quote from a string
      */
-    private String removeQuotes(String str) {
+    public static String removeQuotes(String str) {
         int firstQuote = str.indexOf("\"");
 
         int lastQuote = str.lastIndexOf("\"");

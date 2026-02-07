@@ -7,12 +7,15 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import z3roco01.composed.Composed;
 import z3roco01.composed.annotation.Comment;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -53,8 +56,16 @@ class ConfigWriter extends FileWriter {
         classWriterMap.put(ArrayList.class, (obj, field, writer) -> {
             ArrayList<?> list = (ArrayList<?>)obj;
             writer.write("[\n");
+            Type type = field.getGenericType();
 
-            ClassWriter classWriter = classWriterMap.get(list.getFirst().getClass());
+            Class elementClass;
+            if(type instanceof ParameterizedType) {
+                elementClass = (Class)((ParameterizedType)type).getActualTypeArguments()[0];
+            }else {
+                elementClass = list.getFirst().getClass();
+            }
+
+            ClassWriter classWriter = classWriterMap.get(elementClass);
 
             if(!list.isEmpty()) {
                 for(Object element : list)
@@ -102,58 +113,6 @@ class ConfigWriter extends FileWriter {
 
         if(classWriterMap.containsKey(objClass))
             classWriterMap.get(objClass).write(obj, field, this);
-        // boolean
-        /*if(objClass == boolean.class)
-            this.writeBoolean(field.getBoolean(configObject));
-        else if(objClass == Boolean.class)
-            this.writeBoolean((Boolean)obj);
-            // whole numbers
-        else if(objClass == byte.class)
-            this.writeNumber(field.getByte(obj));
-        else if(objClass == Byte.class)
-            this.writeNumber((Byte)obj);
-        else if(objClass == short.class)
-            this.writeNumber(field.getShort(obj));
-        else if(objClass == Short.class)
-            this.writeNumber((Short)obj);
-        else if(objClass == int.class)
-            this.writeNumber(field.getInt(configObject));
-        else if(objClass == Integer.class)
-            this.writeNumber((Integer)obj);
-        else if(objClass == long.class)
-            this.writeNumber(field.getLong(configObject));
-        else if(objClass == Long.class)
-            this.writeNumber((Long)obj);
-            // decimal numbers
-        else if(objClass == float.class)
-            this.writeDecimal(field.getFloat(configObject));
-        else if(objClass == Float.class)
-            this.writeDecimal((Float)obj);
-        else if(objClass == double.class)
-            this.writeDecimal(field.getDouble(configObject));
-        else if(objClass == Double.class)
-            this.writeDecimal((Double) obj);
-            // string
-        else if(objClass == String.class)
-            this.writeString((String)obj);
-        else if(objClass == Item.class)
-            this.writeId(Registries.ITEM, (Item)obj);
-        else if(objClass == Block.class)
-            this.writeId(Registries.BLOCK, (Block)obj);
-        else if(objClass == StatusEffect.class)
-            this.writeId(Registries.STATUS_EFFECT, (StatusEffect)obj);
-        // lists
-        else if(ArrayList.class.isAssignableFrom(objClass)) {
-            ArrayList<?> list = (ArrayList<?>)obj;
-            this.write("[\n");
-
-            if(!list.isEmpty()) {
-                for(Object element : list)
-                    writeObject(element, null);
-            }
-            this.write("]\n");
-
-        }*/
     }
 
     /**

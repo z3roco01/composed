@@ -58,12 +58,11 @@ class ConfigWriter extends FileWriter {
             writer.write("[\n");
             Type type = field.getGenericType();
 
-            Class elementClass;
-            if(type instanceof ParameterizedType) {
-                elementClass = (Class)((ParameterizedType)type).getActualTypeArguments()[0];
-            }else {
+            Class<?> elementClass;
+            if(type instanceof ParameterizedType)
+                elementClass = (Class<?>)((ParameterizedType)type).getActualTypeArguments()[0];
+            else
                 elementClass = list.getFirst().getClass();
-            }
 
             ClassWriter classWriter = classWriterMap.get(elementClass);
 

@@ -2,6 +2,7 @@ package z3roco01.composed;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.minecraft.item.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import z3roco01.composed.annotation.ConfigProperty;
@@ -26,6 +27,6 @@ public class Composed implements ModInitializer {
 		@ConfigProperty
 		public int asd = 10;
 		@ConfigProperty
-		public ArrayList<String> ward = new ArrayList<>();
+		public ArrayList<Item> ward = new ArrayList<>();
 	}
 }

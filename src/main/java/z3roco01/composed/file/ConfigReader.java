@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -24,39 +26,40 @@ class ConfigReader extends FileReader {
     private static final HashMap<Class<?>, ClassReader> classReaderMap = new HashMap<>();
 
     static {
-        classReaderMap.put(boolean.class, (str, defaultValue, reader, line) -> Boolean.parseBoolean(str));
-        classReaderMap.put(Boolean.class, (str, defaultValue, reader, line) -> Boolean.valueOf(str));
+        classReaderMap.put(boolean.class, (str, defaultValue, reader, line, field) -> Boolean.parseBoolean(str));
+        classReaderMap.put(Boolean.class, (str, defaultValue, reader, line, field) -> Boolean.valueOf(str));
 
-        classReaderMap.put(byte.class, (str, defaultValue, reader, line) -> Byte.parseByte(str));
-        classReaderMap.put(Byte.class, (str, defaultValue, reader, line) -> Byte.valueOf(str));
-        classReaderMap.put(short.class, (str, defaultValue, reader, line) -> Short.parseShort(str));
-        classReaderMap.put(Short.class, (str, defaultValue, reader, line) -> Short.valueOf(str));
-        classReaderMap.put(int.class, (str, defaultValue, reader, line) -> Integer.parseInt(str));
-        classReaderMap.put(Integer.class, (str, defaultValue, reader, line) -> Integer.valueOf(str));
-        classReaderMap.put(long.class, (str, defaultValue, reader, line) -> Long.parseLong(str));
-        classReaderMap.put(Long.class, (str, defaultValue, reader, line) -> Long.valueOf(str));
+        classReaderMap.put(byte.class, (str, defaultValue, reader, line, field) -> Byte.parseByte(str));
+        classReaderMap.put(Byte.class, (str, defaultValue, reader, line, field) -> Byte.valueOf(str));
+        classReaderMap.put(short.class, (str, defaultValue, reader, line, field) -> Short.parseShort(str));
+        classReaderMap.put(Short.class, (str, defaultValue, reader, line, field) -> Short.valueOf(str));
+        classReaderMap.put(int.class, (str, defaultValue, reader, line, field) -> Integer.parseInt(str));
+        classReaderMap.put(Integer.class, (str, defaultValue, reader, line, field) -> Integer.valueOf(str));
+        classReaderMap.put(long.class, (str, defaultValue, reader, line, field) -> Long.parseLong(str));
+        classReaderMap.put(Long.class, (str, defaultValue, reader, line, field) -> Long.valueOf(str));
 
-        classReaderMap.put(float.class, (str, defaultValue, reader, line) -> Float.parseFloat(str));
-        classReaderMap.put(Float.class, (str, defaultValue, reader, line) -> Float.valueOf(str));
-        classReaderMap.put(double.class, (str, defaultValue, reader, line) -> Double.parseDouble(str));
-        classReaderMap.put(Double.class, (str, defaultValue, reader, line) -> Double.valueOf(str));
+        classReaderMap.put(float.class, (str, defaultValue, reader, line, field) -> Float.parseFloat(str));
+        classReaderMap.put(Float.class, (str, defaultValue, reader, line, field) -> Float.valueOf(str));
+        classReaderMap.put(double.class, (str, defaultValue, reader, line, field) -> Double.parseDouble(str));
+        classReaderMap.put(Double.class, (str, defaultValue, reader, line, field) -> Double.valueOf(str));
 
-        classReaderMap.put(String.class, (str, defaultValue, reader, line) -> ConfigReader.removeQuotes(str));
+        classReaderMap.put(String.class, (str, defaultValue, reader, line, field) -> ConfigReader.removeQuotes(str));
 
-        classReaderMap.put(Item.class, (str, defaultValue, reader, line) -> ConfigReader.getFromRegistry(Registries.ITEM, removeQuotes(str)));
-        classReaderMap.put(Block.class, (str, defaultValue, reader, line) -> ConfigReader.getFromRegistry(Registries.BLOCK, removeQuotes(str)));
-        classReaderMap.put(StatusEffect.class, (str, defaultValue, reader, line) -> ConfigReader.getFromRegistry(Registries.STATUS_EFFECT, removeQuotes(str)));
+        classReaderMap.put(Item.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(Registries.ITEM, removeQuotes(str)));
+        classReaderMap.put(Block.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(Registries.BLOCK, removeQuotes(str)));
+        classReaderMap.put(StatusEffect.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(Registries.STATUS_EFFECT, removeQuotes(str)));
 
-        classReaderMap.put(ArrayList.class, (str, defaultValue, reader, line) -> {
+        classReaderMap.put(ArrayList.class, (str, defaultValue, reader, line, field) -> {
 
             ArrayList<Object> list = new ArrayList<>();
 
             Class<?> elementClass;
             ArrayList<Object> arrList = (ArrayList<Object>)defaultValue;
-            if(!arrList.isEmpty())
-                elementClass = arrList.getFirst().getClass();
-            else  // must have at least one element by default
-                return null;
+            Type type = field.getGenericType();
+            if(type instanceof ParameterizedType)
+                elementClass = (Class<?>)((ParameterizedType)type).getActualTypeArguments()[0];
+            else
+                elementClass = list.getFirst().getClass();
 
             // clear out everything to start reading
             arrList.clear();
@@ -65,7 +68,7 @@ class ConfigReader extends FileReader {
             String curLine = reader.lines.get(idx).trim();
 
             while(!curLine.startsWith("]")) {
-                list.add(reader.fromString(null, elementClass, curLine, curLine));
+                list.add(reader.fromString(null, elementClass, curLine, curLine, field));
 
                 idx++;
                 curLine = reader.lines.get(idx);
@@ -103,7 +106,7 @@ class ConfigReader extends FileReader {
 
         String strValue = splitLine[1];
 
-        Object obj = fromString(field.get(configObject), field.getType(), strValue, line);
+        Object obj = fromString(field.get(configObject), field.getType(), strValue, line, field);
         if(obj == null) return false;
 
         boolean accessible = field.canAccess(configObject);
@@ -124,9 +127,9 @@ class ConfigReader extends FileReader {
      * @param line the line which is being converted
      * @return the object that was created
      */
-    private Object fromString(@Nullable Object defaultValue, Class<?> clazz, String str, String line) {
+    private Object fromString(@Nullable Object defaultValue, Class<?> clazz, String str, String line, Field field) {
         if(classReaderMap.containsKey(clazz))
-            return classReaderMap.get(clazz).read(str, defaultValue, this, line);
+            return classReaderMap.get(clazz).read(str, defaultValue, this, line, field);
         else
             return null;
     }

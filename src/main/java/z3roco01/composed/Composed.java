@@ -18,15 +18,4 @@ public class Composed implements ModInitializer {
 	@Override
 	public void onInitialize() {
     }
-
-	public static class Config {
-		public Config() {
-
-		}
-
-		@ConfigProperty
-		public int asd = 10;
-		@ConfigProperty
-		public ArrayList<Item> ward = new ArrayList<>();
-	}
 }

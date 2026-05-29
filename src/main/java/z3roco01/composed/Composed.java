@@ -18,16 +18,5 @@ public class Composed implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		Config config = new Config();
-        try {
-            ConfigFile.store("./fartttt", config);
-        } catch (IOException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
-
-	public class Config {
-		@ConfigProperty
-		public Item item = Items.ACACIA_LEAVES;
-	}
 }

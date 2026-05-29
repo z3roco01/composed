@@ -2,14 +2,8 @@ package z3roco01.composed;
 
 import net.fabricmc.api.ModInitializer;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import z3roco01.composed.annotation.ConfigProperty;
-import z3roco01.composed.file.ConfigFile;
-
-import java.io.IOException;
 
 public class Composed implements ModInitializer {
 	public static final String MOD_ID = "composed";

@@ -1,10 +1,14 @@
 package z3roco01.composed.file;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import z3roco01.composed.Composed;
@@ -49,10 +53,9 @@ class ConfigWriter extends FileWriter {
 
         classWriterMap.put(String.class, (obj, field, writer)-> writer.writeString((String)obj));
 
-        classWriterMap.put(Item.class, (obj, field, writer) -> writer.writeId(Registries.ITEM, (Item)obj));
-        classWriterMap.put(Block.class, (obj, field, writer) -> writer.writeId(Registries.BLOCK, (Block)obj));
-        classWriterMap.put(StatusEffect.class, (obj, field, writer) -> writer.writeId(Registries.STATUS_EFFECT, (StatusEffect)obj));
-
+        classWriterMap.put(Item.class, (obj, field, writer) -> writer.writeId(BuiltInRegistries.ITEM, (Item)obj));
+        classWriterMap.put(Block.class, (obj, field, writer) -> writer.writeId(BuiltInRegistries.BLOCK, (Block)obj));
+        classWriterMap.put(MobEffect.class, (obj, field, writer) -> writer.writeId(BuiltInRegistries.MOB_EFFECT, (MobEffect)obj));
         classWriterMap.put(ArrayList.class, (obj, field, writer) -> {
             ArrayList<?> list = (ArrayList<?>)obj;
             writer.write("[\n");
@@ -118,7 +121,7 @@ class ConfigWriter extends FileWriter {
      * Performs lookup in the registry and gets the id of value, then writes it
      */
     public <T> void writeId(Registry<T> registry, T value) throws IOException {
-        String id = registry.getId(value).toString();
+        String id = registry.getKey(value).toString();
 
         this.writeString(id);
     }

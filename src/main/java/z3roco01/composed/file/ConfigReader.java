@@ -1,11 +1,11 @@
 package z3roco01.composed.file;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,9 +45,9 @@ class ConfigReader extends FileReader {
 
         classReaderMap.put(String.class, (str, defaultValue, reader, line, field) -> ConfigReader.removeQuotes(str));
 
-        classReaderMap.put(Item.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(Registries.ITEM, removeQuotes(str)));
-        classReaderMap.put(Block.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(Registries.BLOCK, removeQuotes(str)));
-        classReaderMap.put(StatusEffect.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(Registries.STATUS_EFFECT, removeQuotes(str)));
+        classReaderMap.put(Item.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(BuiltInRegistries.ITEM, removeQuotes(str)));
+        classReaderMap.put(Block.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(BuiltInRegistries.BLOCK, removeQuotes(str)));
+        classReaderMap.put(MobEffect.class, (str, defaultValue, reader, line, field) -> ConfigReader.getFromRegistry(BuiltInRegistries.MOB_EFFECT, removeQuotes(str)));
 
         classReaderMap.put(ArrayList.class, (str, defaultValue, reader, line, field) -> {
 
@@ -138,9 +138,9 @@ class ConfigReader extends FileReader {
      * Will lookup the string identifier in the passed registry
      */
     public static <T> T getFromRegistry(Registry<T> registry, String strId) {
-        Identifier id = Identifier.of(strId);
+        Identifier id = Identifier.parse(strId);
 
-        return registry.get(id);
+        return registry.getValue(id);
     }
 
     /**
